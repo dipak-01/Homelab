@@ -1,0 +1,21 @@
+---
+# For configuration options and examples, please see:
+# https://gethomepage.dev/configs/bookmarks
+
+- Developer:
+    - Github:
+        - abbr: GH
+          href: https://github.com/dipak-01
+
+- Social:
+    - Reddit:
+        - abbr: RE
+          href: https://reddit.com/
+    - Linkedin:
+        - abbr: Li
+          href: https://www.linkedin.com/in/dipak-kurkute-2a4451256
+
+- Entertainment:
+    - YouTube:
+        - abbr: YT
+          href: https://youtube.com/

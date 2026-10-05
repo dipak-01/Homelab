@@ -1,0 +1,30 @@
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:2
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    volumes:
+      - ./data:/app/data
+    ports:
+      # <Host Port>:<Container Port>
+      - "3001:3001"
+    networks:
+      - default
+      - paperless
+      - immich
+      - homepage
+
+networks:
+  paperless:
+    external: true
+    name: paperless_default
+
+  immich: 
+    external: true
+    name: immich_default
+
+  homepage:
+    external: true
+    name: homepage_default
+

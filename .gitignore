@@ -1,0 +1,74 @@
+# ------------------------------------------------------------------------------
+# Security: Environment Files & Secret Credentials
+# ------------------------------------------------------------------------------
+*.env
+*.env.*
+.env
+.env.*
+docker-compose.env
+*.key
+*.pem
+*.crt
+*.cert
+
+# Allow safe example templates
+!*.example
+!*.env.example
+!docker-compose.env.example
+
+# ------------------------------------------------------------------------------
+# Databases, Dumps & Backups
+# ------------------------------------------------------------------------------
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+*.sqlite3
+*.sql
+*.sql.gz
+*.dump
+
+# ------------------------------------------------------------------------------
+# Persistent Service Data, Uploads & Media
+# ------------------------------------------------------------------------------
+**/data/
+**/postgres/
+**/library/
+**/export/
+**/media/
+
+# Paperless document intake folder
+compose/paperless-ngx/home/
+
+# Immich uploads and generated assets
+compose/immich-app/library/
+compose/immich-app/postgres/
+
+# Memos SQLite data
+compose/memos/data/
+
+# Uptime Kuma SQLite and runtime configs
+compose/uptime-kuma/data/
+
+# ------------------------------------------------------------------------------
+# Logs & Runtime Diagnostics
+# ------------------------------------------------------------------------------
+*.log
+**/logs/
+compose/homepage/config/logs/
+
+# ------------------------------------------------------------------------------
+# Ansible Secrets & Temporary Files
+# ------------------------------------------------------------------------------
+*.retry
+*vault_pass*
+.vault_pass*
+
+# ------------------------------------------------------------------------------
+# OS & Editor Artifacts
+# ------------------------------------------------------------------------------
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~

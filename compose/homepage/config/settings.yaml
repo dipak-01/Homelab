@@ -1,0 +1,34 @@
+title: Dk's Homelab
+description: Personal Homelab
+
+theme: dark
+color: slate
+
+headerStyle: clean
+iconStyle: theme
+
+logo: /images/logo.png
+
+fullWidth: true
+maxGroupColumns: 3
+
+useEqualHeights: true
+statusStyle: dot
+target: _blank
+
+hideVersion: true
+disableUpdateCheck: false
+disableIndexing: true
+
+background:
+  image: /images/background_street.png
+  saturate: 75
+  brightness: 50
+  opacity: 80
+
+layout:
+  Homelab:
+    style: row
+    columns: 3
+    header: true
+    useEqualHeights: true

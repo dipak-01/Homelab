@@ -1,0 +1,22 @@
+- Homelab:
+    - Uptime Kuma:
+        id: uptime
+        icon: uptime-kuma.png
+        href: http://uptime.dipakkurkute.dev
+        description: Service Monitoring
+        statusStyle: dot
+
+    - Immich:
+        id: immich
+        icon: immich.png
+        href: http://immich.dipakkurkute.dev
+        description: Image Storage
+        statusStyle: dot
+
+    - Paperless:
+        id: paperless
+        icon: paperless-ngx.png
+        href: http://paperless.dipakkurkute.dev
+        description: PDF Manager
+        statusStyle: dot
+
