@@ -15,6 +15,7 @@ services:
       - immich
       - homepage
       - faved
+      - memos
 
 networks:
   paperless:
