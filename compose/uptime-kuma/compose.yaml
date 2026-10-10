@@ -14,6 +14,7 @@ services:
       - paperless
       - immich
       - homepage
+      - faved
 
 networks:
   paperless:
@@ -27,4 +28,12 @@ networks:
   homepage:
     external: true
     name: homepage_default
+
+  memos:
+    external: true
+    name: memos_default
+
+  faved:
+    external: true
+    name: faved_default
 
