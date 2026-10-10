@@ -8,6 +8,7 @@ services:
       - ~/Homelab/compose/homepage/config:/app/config # Make sure your local config directory exists
       - ~/Homelab/compose/homepage/config/images:/app/public/images:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro # (optional) For docker integrations
+      - ./icons:/app/public/icons
     environment:
       HOMEPAGE_ALLOWED_HOSTS: gethomepage.dev,100.96.38.10:3000,homepage.dipakkurkute.dev,homepage:3000 # required, may need port. See gethomepage.dev/installation/#homepage_allowed_hosts
       
