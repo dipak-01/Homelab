@@ -22,14 +22,14 @@
 
     - Memos:
           id: memos
-          icon: memos,png
-          href: http://memos.immich.dipakkurkute.dev
+          icon: memos.png
+          href: http://memos.dipakkurkute.dev
           description: Notes and Todo
           statusStyle: dot
 
     - Faved:
           id: faved
-          icon: faved,png
+          icon: faved.png
           href: http://faved.dipakkurkute.dev
           description: Bookmarks
           statusStyle: dot
