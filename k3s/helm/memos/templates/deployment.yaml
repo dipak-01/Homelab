@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: deployment
+metadata: 
+  name: {{ .Release.Name}}-app
+spec:
+  replicas: {{ .Values.deployment.replicaCount}}
+  selector:
+   matchlabels:
+    app: {{ .Release.Name}}
+  templates:
+    metadata:
+      labels: 
+        app: {{ .Release.Name}}
+    spec:
+      containers:
+        - name: app
+          image: "{{ .Values.image.repository}}:{{ .Values.image.tag}}"
+          ports:
+            - containerPort: 80  
+          volumeMounts:
+            - name: memos-data
+              mountPath: /var/opt/memos 
+      volumes:
+        - name: memos-data
+          hostPath:
+            path: /home/dk/Homelab_Data/memos/data
+            type: DirectoryOrCreate

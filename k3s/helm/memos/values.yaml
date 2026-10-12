@@ -1,0 +1,25 @@
+image:
+  repository: neosmemo/memos
+  tag: "stable"
+
+service:
+  type: ClusterIP
+  port: 80
+  targetPort: 5230
+
+serviceAccount:
+  create: true
+  name: ""
+  annotations: {}
+
+deployment:
+  replicaCount: 1
+
+ingress:
+  create: false
+
+httpRoute:
+  create: false
+
+autoscaling:
+  create: false
