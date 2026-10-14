@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Release.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          volumeMounts:
+            {{- range .Values.volumeMounts}}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              readOnly: {{ .readOnly | default false }}
+            {{- end }}
+          env:
+          - name: HOMEPAGE_ALLOWED_HOSTS
+            valueFrom:
+              secretKeyRef:
+                name: "{{ .Release.Name }}-secret"  
+                key: HOMEPAGE_ALLOWED_HOSTS
+      volumes:
+        {{- range .Values.volumes}}
+        - name: {{ .name }}
+          hostPath:
+            path: {{ .hostPath.path }}
+            type: {{ .hostPath.type }}
+        {{- end }}
+

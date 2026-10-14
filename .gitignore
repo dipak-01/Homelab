@@ -72,3 +72,13 @@ Thumbs.db
 *.swp
 *.swo
 *~
+
+# ------------------------------------------------------------------------------
+# Kubernetes / k3s Secrets & Credentials
+# ------------------------------------------------------------------------------
+**/secrets/
+*secrets/
+*.secret.yaml
+*.secrets.yaml
+!**/templates/secret.yaml
+!**/templates/*secret*.yaml

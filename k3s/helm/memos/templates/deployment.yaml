@@ -1,27 +1,45 @@
 apiVersion: apps/v1
-kind: deployment
-metadata: 
-  name: {{ .Release.Name}}-app
+kind: Deployment
+metadata:
+  name: "{{ .Release.Name}}-app"
 spec:
-  replicas: {{ .Values.deployment.replicaCount}}
+  replicas: {{ .Values.deployment.replicaCount }}
   selector:
-   matchlabels:
-    app: {{ .Release.Name}}
-  templates:
+    matchLabels:
+      app: {{ .Release.Name }}
+  template:
     metadata:
-      labels: 
-        app: {{ .Release.Name}}
+      labels:
+        app: {{ .Release.Name }}
     spec:
       containers:
-        - name: app
-          image: "{{ .Values.image.repository}}:{{ .Values.image.tag}}"
-          ports:
-            - containerPort: 80  
-          volumeMounts:
-            - name: memos-data
-              mountPath: /var/opt/memos 
-      volumes:
+      - name: app
+        image: "{{ .Values.image.repository}}:{{ .Values.image.tag}}"
+        ports:
+        - containerPort: 80
+        volumeMounts:
         - name: memos-data
-          hostPath:
-            path: /home/dk/Homelab_Data/memos/data
-            type: DirectoryOrCreate
+          mountPath: /var/opt/memos
+        env:
+        - name: MEMOS_PORT
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-secret"
+              key: MEMOS_PORT
+
+        - name: MEMOS_INSTANCE_URL
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-secret"
+              key: MEMOS_INSTANCE_URL
+
+        - name: MEMOS_DRIVER
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Release.Name }}-secret"
+              key: MEMOS_DRIVER
+      volumes:
+      - name: memos-data
+        hostPath:
+          path: /home/dk/Homelab_Data/memos/data
+          type: DirectoryOrCreate

@@ -16,7 +16,7 @@ deployment:
   replicaCount: 1
 
 ingress:
-  create: false
+  create: true
 
 httpRoute:
   create: false
