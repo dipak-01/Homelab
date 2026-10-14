@@ -1,78 +1,68 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "paperless.fullname" . }}
-  labels:
-    {{- include "paperless.labels" . | nindent 4 }}
+  name: "{{ .Release.Name }}-app"
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
   selector:
     matchLabels:
-      {{- include "paperless.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "paperless.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: {{ .Release.Name }}
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "paperless.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+        - name: "{{ .Release.Name }}-webserver"
+          image: "{{ .Values.service.webserver.repository }}:{{ .Values.service.webserver.tag }}"
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
+            - containerPort: 8000
+          env:
+            {{- range $key, $value := .Values.env }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- range $key, $value := .Values.secret }}
+            - name: {{ $key | quote }}
+              value: {{ $value | quote }}
+            {{- end }}
+
+          volumeMounts: 
+            - name: data-volume
+              mountPath: /usr/src/paperless/data
+            - name: media-volume
+              mountPath: /usr/src/paperless/media
+            - name: export-volume
+              mountPath: /usr/src/paperless/export
+            - name: consume-volume
+              mountPath: /usr/src/paperless/consume
+         
+        - name: "{{ .Release.Name }}-broker"
+          image: "{{ .Values.service.broker.repository }}:{{ .Values.service.broker.tag }}"
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
-      volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+            - name: redis-volume
+              mountPath: /data
+         
+        - name: "{{ .Release.Name }}-tika"
+          image: "{{ .Values.service.tika.repository }}:{{ .Values.service.tika.tag }}"
+         
+        - name: "{{ .Release.Name }}-gotenberg"
+          image: "{{ .Values.service.gotenberg.repository }}:{{ .Values.service.gotenberg.tag }}"
+          command:
+            {{- toYaml .Values.service.gotenberg.command | nindent 12 }}
+      volumes:    
+          - name: data-volume
+            persistentVolumeClaim:
+              claimName: "{{ .Release.Name }}-data"
+          - name: media-volume
+            persistentVolumeClaim:
+              claimName: "{{ .Release.Name }}-media"
+          - name: export-volume
+            persistentVolumeClaim:
+              claimName: "{{ .Release.Name }}-export"
+          - name: redis-volume
+            persistentVolumeClaim:
+              claimName: "{{ .Release.Name }}-redis"
+          - name: consume-volume
+            persistentVolumeClaim:
+              claimName: "{{ .Release.Name }}-consume"
