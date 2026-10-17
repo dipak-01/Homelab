@@ -1,78 +1,166 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
-  labels:
-    {{- include "immich.labels" . | nindent 4 }}
+  name: "{{ .Release.Name }}-app"
+
 spec:
-  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
-  {{- end }}
+
   selector:
     matchLabels:
-      {{- include "immich.selectorLabels" . | nindent 6 }}
+      app: {{ .Release.Name }}
+
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
-      annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       labels:
-        {{- include "immich.labels" . | nindent 8 }}
-        {{- with .Values.podLabels }}
-        {{- toYaml . | nindent 8 }}
-        {{- end }}
+        app: {{ .Release.Name }}
+
     spec:
-      {{- with .Values.imagePullSecrets }}
-      imagePullSecrets:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      serviceAccountName: {{ include "immich.serviceAccountName" . }}
-      {{- with .Values.podSecurityContext }}
-      securityContext:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
       containers:
-        - name: {{ .Chart.Name }}
-          {{- with .Values.securityContext }}
-          securityContext:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+
+        # =========================
+        # Immich Server
+        # =========================
+        - name: "{{ .Release.Name }}-server"
+          image: "{{ .Values.immich_server.repository }}:{{ .Values.immich_server.tag }}"
+
           ports:
-            - name: http
-              containerPort: {{ .Values.service.port }}
-              protocol: TCP
-          {{- with .Values.livenessProbe }}
-          livenessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.readinessProbe }}
-          readinessProbe:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.resources }}
-          resources:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-          {{- with .Values.volumeMounts }}
+            - containerPort: 2283
+
+          env:
+            - name: DB_HOSTNAME
+              value: "localhost"
+
+            - name: DB_PORT
+              value: "5432"
+
+            - name: DB_DATABASE_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secret"
+                  key: DB_DATABASE_NAME
+
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secret"
+                  key: DB_USERNAME
+
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secret"
+                  key: DB_PASSWORD
+
+            - name: REDIS_HOSTNAME
+              value: "localhost"
+
+            - name: REDIS_PORT
+              value: "6379"
+
+            - name: IMMICH_MACHINE_LEARNING_URL
+              value: "http://localhost:3003"
+
           volumeMounts:
-            {{- toYaml . | nindent 12 }}
-          {{- end }}
-      {{- with .Values.volumes }}
+            - name: immich-uploads
+              mountPath: /data
+
+            - name: immich-localtime
+              mountPath: /etc/localtime
+              readOnly: true
+
+
+        # =========================
+        # Immich Machine Learning
+        # =========================
+        - name: "{{ .Release.Name }}-machine-learning"
+          image: "{{ .Values.immich_machine_learning.repository }}:{{ .Values.immich_machine_learning.tag }}"
+
+          volumeMounts:
+            - name: immich-model-cache
+              mountPath: /cache
+
+
+        # =========================
+        # Redis / Valkey
+        # =========================
+        - name: "{{ .Release.Name }}-redis"
+          image: "{{ .Values.redis.repository }}:{{ .Values.redis.tag }}"
+
+          livenessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 10
+
+
+        # =========================
+        # PostgreSQL
+        # =========================
+        - name: "{{ .Release.Name }}-database"
+          image: "{{ .Values.database.repository }}:{{ .Values.database.tag }}"
+
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secret"
+                  key: DB_PASSWORD
+
+            - name: POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secret"
+                  key: DB_USERNAME
+
+            - name: POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: "{{ .Release.Name }}-secret"
+                  key: DB_DATABASE_NAME
+
+            - name: POSTGRES_INITDB_ARGS
+              value: "--data-checksums"
+
+          readinessProbe:
+            exec:
+              command:
+                - pg_isready
+                - -U
+                - postgres
+            initialDelaySeconds: 5
+            periodSeconds: 5
+
+          volumeMounts:
+            - name: immich-postgres
+              mountPath: /var/lib/postgresql/data
+
+            - name: immich-shm
+              mountPath: /dev/shm
+
+
+      # =========================
+      # Volumes
+      # =========================
       volumes:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.nodeSelector }}
-      nodeSelector:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.affinity }}
-      affinity:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-      {{- with .Values.tolerations }}
-      tolerations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+
+        - name: immich-uploads
+          persistentVolumeClaim:
+            claimName: "{{ .Release.Name }}-uploads"
+
+        - name: immich-model-cache
+          persistentVolumeClaim:
+            claimName: "{{ .Release.Name }}-model-cache"
+
+        - name: immich-postgres
+          persistentVolumeClaim:
+            claimName: "{{ .Release.Name }}-postgres"
+
+        - name: immich-localtime
+          hostPath:
+            path: /etc/localtime
+
+        - name: immich-shm
+          emptyDir:
+            medium: Memory
+            sizeLimit: 128Mi
