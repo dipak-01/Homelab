@@ -76,8 +76,7 @@ Thumbs.db
 # ------------------------------------------------------------------------------
 # Kubernetes / k3s Secrets & Credentials
 # ------------------------------------------------------------------------------
-**/secrets/
-*secrets/
+/k3s/secrets/
 *.secret.yaml
 *.secrets.yaml
 !**/templates/secret.yaml
