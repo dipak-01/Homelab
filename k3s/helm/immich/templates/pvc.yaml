@@ -3,7 +3,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: "{{ .Release.Name }}-uploads"
 spec:
-  storageClassName: local-path-retain
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
@@ -29,7 +29,7 @@ kind: PersistentVolumeClaim
 metadata:
   name: "{{ .Release.Name }}-postgres"
 spec:
-  storageClassName: local-path-retain
+  storageClassName: local-path
   accessModes:
     - ReadWriteOnce
   resources:
