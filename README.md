@@ -1,5 +1,12 @@
 # 🏡 Dk's Homelab
 
+[![Dashboard](https://img.shields.io/badge/Dashboard-selfhost.dipakkurkute.dev-blue?style=flat-square)](https://selfhost.dipakkurkute.dev)
+[![Uptime Status](https://img.shields.io/badge/Status%20Page-uptime.dipakkurkute.dev-brightgreen?style=flat-square)](https://uptime.dipakkurkute.dev/status/all)
+
+> 🔗 **Quick Links:**
+> - 🌐 **Dashboard:** [https://selfhost.dipakkurkute.dev](https://selfhost.dipakkurkute.dev)
+> - 📊 **Status Page:** [https://uptime.dipakkurkute.dev/status/all](https://uptime.dipakkurkute.dev/status/all)
+
 A curated showcase of my personal homelab infrastructure, self-hosted services, container architecture, and fully declarative **GitOps** pipeline powered by **K3s (Kubernetes)**, **Helm**, **ArgoCD**, and **Bitnami Sealed Secrets**.
 
 ---
